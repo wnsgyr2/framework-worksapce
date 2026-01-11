@@ -1,0 +1,60 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>my-multi-project</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>integration-test</artifactId>
+    <packaging>jar</packaging>
+    <name>integration-test</name>
+
+    <build>
+        <plugins>
+
+            <!-- ✅ sample-project를 실제로 실행하는 핵심 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <version>3.6.0</version>
+
+                <configuration>
+                    <!-- integration-test 기준: workspace/samples -->
+                    <projectsDirectory>${project.basedir}/../../samples</projectsDirectory>
+
+                    <!-- ✅ pom.xml을 직접 찍어서 "선택 0개" 문제 방지 -->
+                    <pomIncludes>
+                        <pomInclude>sample-project-a/sample-project-a/pom.xml</pomInclude>
+                        <pomInclude>sample-project-b/sample-project-b/pom.xml</pomInclude>
+                    </pomIncludes>
+
+                    <!-- 샘플 프로젝트에서 실행할 목표 -->
+                    <goals>
+                        <goal>test</goal>
+                    </goals>
+
+                    <streamLogs>true</streamLogs>
+                    <showErrors>true</showErrors>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>run-samples</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
