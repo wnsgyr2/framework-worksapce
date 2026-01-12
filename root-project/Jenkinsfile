@@ -1,19 +1,27 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
-
-    stage('Verify framework with samples') {
-      steps {
-        dir('root-project') {
-          sh 'mvn -U clean verify'
+    stages {
+        stage('Build & Integration Test') {
+            steps {
+                sh 'mvn clean verify'
+            }
         }
-      }
     }
-  }
+
+    post {
+        always {
+            publishHTML([
+                reportDir: 'integration-test/target/site',
+                reportFiles: 'surefire-report.html, failsafe-report.html',
+                reportName: 'Integration Test Report',
+                keepAll: true,
+                alwaysLinkToLastBuild: true,
+                allowMissing: false
+            ])
+        }
+        failure {
+            echo '❌ Some integration tests failed. See HTML report.'
+        }
+    }
 }
