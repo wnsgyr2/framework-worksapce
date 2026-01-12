@@ -1,10 +1,14 @@
 pipeline {
     agent any
 
+    options { timestamps() }
+
     stages {
         stage('Build & Integration Test') {
             steps {
-                sh 'mvn clean verify'
+                dir('root-project') {
+                    sh 'mvn -B clean verify'
+                }
             }
         }
     }
@@ -12,12 +16,12 @@ pipeline {
     post {
         always {
             publishHTML([
-                reportDir: 'integration-test/target/site',
+                reportDir: 'root-project/integration-test/target/site',
                 reportFiles: 'surefire-report.html, failsafe-report.html',
                 reportName: 'Integration Test Report',
                 keepAll: true,
                 alwaysLinkToLastBuild: true,
-                allowMissing: false
+                allowMissing: true
             ])
         }
         failure {
