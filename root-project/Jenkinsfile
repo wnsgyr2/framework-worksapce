@@ -1,31 +1,30 @@
 pipeline {
-    agent any
+  agent any
 
-    options { timestamps() }
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
 
-    stages {
-        stage('Build & Integration Test') {
-            steps {
-                dir('root-project') {
-                    sh 'mvn -B clean verify'
-                }
-            }
-        }
+        // ✅ Jenkins가 실제로 체크아웃한 커밋 확인
+        sh 'git rev-parse HEAD'
+        sh 'git log -1 --oneline'
+      }
     }
 
-    post {
-        always {
-            publishHTML([
-                reportDir: 'root-project/integration-test/target/site',
-                reportFiles: 'surefire-report.html, failsafe-report.html',
-                reportName: 'Integration Test Report',
-                keepAll: true,
-                alwaysLinkToLastBuild: true,
-                allowMissing: true
-            ])
+    stage('Verify framework with samples') {
+      steps {
+        dir('root-project') {
+          // ✅ 지금 위치/파일 존재 확인
+          sh 'pwd'
+          sh 'ls -al'
+          sh 'ls -al pom.xml'
+          sh 'ls -al integration-test/pom.xml'
+
+          // ✅ 빌드
+          sh 'mvn -U clean verify'
         }
-        failure {
-            echo '❌ Some integration tests failed. See HTML report.'
-        }
+      }
     }
+  }
 }
